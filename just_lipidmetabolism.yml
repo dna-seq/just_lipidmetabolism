@@ -1,0 +1,44 @@
+title: Lipid metabolism postaggregator
+version: 0.1.0
+name: just_lipidmetabolism
+type: postaggregator
+level: variant
+input_level: variant
+description:  Postaggregator for Longevity2reporter. It deppends on annotators dbsnp, longevitymap, clinvar, omim, ncbigene, pubmed, gnomad. 
+requires:
+- dbsnp
+- omim
+- ncbigene
+- gnomad
+- vcfinfo
+- clinvar
+input_columns:
+- vcfinfo__zygosity
+- base__alt_base
+- base__ref_base
+- dbsnp__rsid
+- base__cchange
+- base__so
+- gnomad__af
+- omim__omim_id
+- ncbigene__ncbi_desc
+- clinvar__disease_names
+- clinvar__id
+tags:
+- longevity
+output_columns:
+- name: col1
+  title: clo1
+  type: string
+  width: 1
+  filterable: false
+  hidden: true
+  desc: dummy column
+developer:
+  name: "DNA-seq"
+  organization: "DNA-seq"
+  email: "just.dna.seq@gmail.com"
+  website: "https://dna-seq.github.io/"
+  citation: ""
+release_note:
+0.1.0: initial version
