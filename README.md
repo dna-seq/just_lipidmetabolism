@@ -1,4 +1,4 @@
-# just_lipid_metabolism 
+# just_lipidmetabolism 
 
 Lipid metabolism postagregator for longevity report in OakVar. It is a part of [Oakvar-Longevity](https://github.com/dna-seq/oakvar-longevity) module.
 
