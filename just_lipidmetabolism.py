@@ -109,20 +109,20 @@ class CravatPostAggregator (BasePostAggregator):
         ref = input_data['base__ref_base']
 
         zygot = input_data['vcfinfo__zygosity']
-        genome = alt + "/" + ref
+        genome = alt + ref
         gen_set = {alt, ref}
         if zygot == 'hom':
-            genome = alt + "/" + alt
+            genome = alt + alt
             gen_set = {alt, alt}
 
         zygot:str = input_data['vcfinfo__zygosity']
         if zygot is None or zygot == "":
-            zygot = "het"
+            zygot = "hom"
 
         query = "SELECT rsids.risk_allele, gene, genotype, genotype_specific_conclusion, rsid_conclusion, weight, " \
                 " pmids, population, populations, p_value FROM rsids, studies, " \
                 f" weight WHERE rsids.rsid = '{rsid}' AND weight.rsid = '{rsid}' AND studies.snp= '{rsid}' " \
-                f" AND risk_allele='{alt}' AND zygot ='{zygot}' AND genotype='{gen_set}'; "
+                f" AND risk_allele='{alt}' AND zygot ='{zygot}' AND allele='{alt}'; "
 
         self.lipid_cursor.execute(query)
         rows = self.lipid_cursor.fetchall()
