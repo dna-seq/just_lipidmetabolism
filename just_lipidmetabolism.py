@@ -8,7 +8,7 @@ import lipidmetabolism_ref_homo
 
 
 class CravatPostAggregator (BasePostAggregator):
-    sql_insert = """ INSERT INTO lipid_metabolism (
+    sql_insert:str = """ INSERT INTO lipid_metabolism (
                         rsid,
                         gene,
                         risk_allele,
@@ -22,23 +22,23 @@ class CravatPostAggregator (BasePostAggregator):
                         pvalue,
                         weightcolor
                     ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) """
-    ref_homo = lipidmetabolism_ref_homo.LipidRefHomo()
+    ref_homo:lipidmetabolism_ref_homo.LipidRefHomo = lipidmetabolism_ref_homo.LipidRefHomo()
 
     def check(self):
         return True
 
     def setup (self):
         self.ref_homo.init(self, self.sql_insert)
-        modules_path = str(Path(__file__).parent)
-        sql_file = modules_path + "/data/lipid_metabolism.sqlite"
+        modules_path:str = str(Path(__file__).parent)
+        sql_file:str = modules_path + "/data/lipid_metabolism.sqlite"
         if Path(sql_file).exists():
             self.lipid_conn = sqlite3.connect(sql_file)
             self.lipid_cursor = self.lipid_conn.cursor()
 
         self.result_path = Path(self.output_dir, self.run_name + "_longevity.sqlite")
-        self.longevity_conn = sqlite3.connect(self.result_path)
-        self.longevity_cursor = self.longevity_conn.cursor()
-        sql_create = """ CREATE TABLE IF NOT EXISTS lipid_metabolism (
+        self.longevity_conn:sqlite3.Connection = sqlite3.connect(self.result_path)
+        self.longevity_cursor:sqlite3.Cursor = self.longevity_conn.cursor()
+        sql_create:str = """ CREATE TABLE IF NOT EXISTS lipid_metabolism (
             id integer NOT NULL PRIMARY KEY,
             rsid text,
             gene text,
@@ -95,8 +95,8 @@ class CravatPostAggregator (BasePostAggregator):
         return color
 
 
-    def annotate (self, input_data):
-        rsid = str(input_data['dbsnp__rsid'])
+    def annotate (self, input_data:dict):
+        rsid:str = str(input_data['dbsnp__rsid'])
         if rsid == '':
             return
 
@@ -105,12 +105,12 @@ class CravatPostAggregator (BasePostAggregator):
         if not rsid.startswith('rs'):
             rsid = "rs" + rsid
 
-        alt = input_data['base__alt_base']
-        ref = input_data['base__ref_base']
+        alt:str = input_data['base__alt_base']
+        ref:str = input_data['base__ref_base']
 
-        zygot = input_data['vcfinfo__zygosity']
-        genome = alt + ref
-        gen_set = {alt, ref}
+        zygot:str = input_data['vcfinfo__zygosity']
+        genome:str = alt + ref
+        gen_set:set = {alt, ref}
         if zygot == 'hom':
             genome = alt + alt
             gen_set = {alt, alt}
@@ -119,23 +119,23 @@ class CravatPostAggregator (BasePostAggregator):
         if zygot is None or zygot == "":
             zygot = "hom"
 
-        query = "SELECT rsids.risk_allele, gene, genotype, genotype_specific_conclusion, rsid_conclusion, weight, " \
+        query:str = "SELECT rsids.risk_allele, gene, genotype, genotype_specific_conclusion, rsid_conclusion, weight, " \
                 " pmids, population, populations, p_value FROM rsids, studies, " \
                 f" weight WHERE rsids.rsid = '{rsid}' AND weight.rsid = '{rsid}' AND studies.snp= '{rsid}' " \
                 f" AND risk_allele='{alt}' AND zygot ='{zygot}' AND allele='{alt}'; "
 
         self.lipid_cursor.execute(query)
-        rows = self.lipid_cursor.fetchall()
+        rows:list[tuple]  = self.lipid_cursor.fetchall()
 
         if len(rows) == 0:
             return
 
         for row in rows:
-            allele = row[0]
-            row_gen = {row[2][0], row[2][1]}
+            allele:str = row[0]
+            row_gen:set = {row[2][0], row[2][1]}
 
             if gen_set == row_gen:
-                task = (rsid, row[1], allele, genome, row[4], row[3], float(row[5]), row[6], row[7], row[8],
+                task:tuple = (rsid, row[1], allele, genome, row[4], row[3], float(row[5]), row[6], row[7], row[8],
                         row[9], self.get_color(row[5], 0.6))
                 self.longevity_cursor.execute(self.sql_insert, task)
 
