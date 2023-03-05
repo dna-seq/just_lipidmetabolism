@@ -8,7 +8,7 @@ Lipid metabolism postagregator for longevity report in OakVar. It is a part of [
 
 From Oakvar store:
 ```bash
-ov module install just_lipid_metabolism
+ov module install just_lipidmetabolism
 ```
 From a direct link on GitHub:
 ```bash
