@@ -122,7 +122,7 @@ class CravatPostAggregator (BasePostAggregator):
         query:str = "SELECT rsids.risk_allele, gene, genotype, genotype_specific_conclusion, rsid_conclusion, weight, " \
                 " pmids, population, populations, p_value FROM rsids, studies, " \
                 f" weight WHERE rsids.rsid = '{rsid}' AND weight.rsid = '{rsid}' AND studies.snp= '{rsid}' " \
-                f" AND risk_allele='{alt}' AND zygot ='{zygot}' AND allele='{alt}'; "
+                f" AND weight.risk_allele='{alt}' AND zygosity ='{zygot}' AND allele='{alt}'; "
 
         self.lipid_cursor.execute(query)
         rows:list[tuple]  = self.lipid_cursor.fetchall()
