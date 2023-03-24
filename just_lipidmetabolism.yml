@@ -1,5 +1,6 @@
 title: Lipid metabolism postaggregator
 version: 0.1.0
+data_version: 0.1.0
 name: just_lipidmetabolism
 type: postaggregator
 level: variant
