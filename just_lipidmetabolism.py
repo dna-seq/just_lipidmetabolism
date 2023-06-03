@@ -94,6 +94,12 @@ class CravatPostAggregator (BasePostAggregator):
 
         return color
 
+    def merge_studies(self, studies):
+        studydesign = ''
+        for study in studies:
+            pmid = '<p>[PMID: ' + str(study[0]) + ']: '
+            studydesign += pmid + str(study[1]) + ' (p-value: ' + str(study[2]) + '). </p>'
+        return studydesign
 
     def annotate (self, input_data:dict):
         rsid:str = str(input_data['dbsnp__rsid'])
@@ -119,25 +125,30 @@ class CravatPostAggregator (BasePostAggregator):
         if zygot is None or zygot == "":
             zygot = "hom"
 
+        query_for_studies:str = f"SELECT pubmed_id, populations, p_value FROM studies WHERE snp = '{rsid}'"
+        self.lipid_cursor.execute(query_for_studies)
+        studies = self.lipid_cursor.fetchall()
+        
+        study_design = self.merge_studies(studies)
         query:str = "SELECT rsids.risk_allele, gene, genotype, genotype_specific_conclusion, rsid_conclusion, weight, " \
-                " pmids, population, populations, p_value FROM rsids, studies, " \
-                f" weight WHERE rsids.rsid = '{rsid}' AND weight.rsid = '{rsid}' AND studies.snp= '{rsid}' " \
+                " pmids, population, weight.p_value FROM rsids, " \
+                f" weight WHERE rsids.rsid = '{rsid}' AND weight.rsid = '{rsid}'" \
                 f" AND weight.risk_allele='{alt}' AND zygosity ='{zygot}' AND allele='{alt}'; "
 
         self.lipid_cursor.execute(query)
-        rows:list[tuple]  = self.lipid_cursor.fetchall()
+        row:tuple  = self.lipid_cursor.fetchone()
 
-        if len(rows) == 0:
+        if len(row) == 0:
             return
 
-        for row in rows:
-            allele:str = row[0]
-            row_gen:set = {row[2][0], row[2][1]}
 
-            if gen_set == row_gen:
-                task:tuple = (rsid, row[1], allele, genome, row[4], row[3], float(row[5]), row[6], row[7], row[8],
-                        row[9], self.get_color(row[5], 0.6))
-                self.longevity_cursor.execute(self.sql_insert, task)
+        allele:str = row[0]
+        row_gen:set = {row[2][0], row[2][1]}
+
+        if gen_set == row_gen:
+            task:tuple = (rsid, row[1], allele, genome, row[4], row[3], float(row[5]), row[6], row[7], study_design,
+                    row[8], self.get_color(row[5], 0.6))
+            self.longevity_cursor.execute(self.sql_insert, task)
 
         return {"col1":""}
 

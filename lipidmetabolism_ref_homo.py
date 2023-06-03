@@ -58,14 +58,19 @@ class LipidRefHomo:
             if self.rsid_map[rsid]['exist']:
                 allele:str = self.rsid_map[rsid]['allele']
                 genotype:str = allele+allele
+                
+                query_for_studies:str = f"SELECT pubmed_id, populations, p_value FROM studies WHERE snp = '{rsid}'"
+                self.parent.lipid_cursor.execute(query_for_studies)
+                studies = self.parent.lipid_cursor.fetchall()
+                study_design = self.parent.merge_studies(studies)
 
                 query:str = "SELECT rsids.risk_allele, gene, genotype, genotype_specific_conclusion, rsid_conclusion, weight, " \
-                " pmids, population, populations, p_value FROM rsids, studies, " \
-                f" weight WHERE rsids.rsid = '{rsid}' AND weight.rsid = '{rsid}' AND studies.snp= '{rsid}' AND genotype = '{genotype}';"
+                " pmids, population, p_value FROM rsids, " \
+                f" weight WHERE rsids.rsid = '{rsid}' AND weight.rsid = '{rsid}' AND genotype = '{genotype}';"
 
                 self.parent.lipid_cursor.execute(query)
                 row:tuple = self.parent.lipid_cursor.fetchone()
                 if row:
-                    task:tuple = (rsid, row[1], allele, genotype, row[4], row[3], float(row[5]), row[6], row[7], row[8],
-                        row[9], self.get_color(row[5], 0.6))
+                    task:tuple = (rsid, row[1], allele, genotype, row[4], row[3], float(row[5]), row[6], row[7], study_design,
+                        row[8], self.get_color(row[5], 0.6))
                     self.parent.longevity_cursor.execute(self.sql_insert, task)
