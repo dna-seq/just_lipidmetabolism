@@ -117,6 +117,7 @@ class CravatPostAggregator (BasePostAggregator):
         zygot:str = input_data['vcfinfo__zygosity']
         genome:str = alt + ref
         gen_set:set = {alt, ref}
+        
         if zygot == 'hom':
             genome = alt + alt
             gen_set = {alt, alt}
@@ -139,7 +140,7 @@ class CravatPostAggregator (BasePostAggregator):
         self.lipid_cursor.execute(query)
         row:tuple  = self.lipid_cursor.fetchone()
 
-        if len(row) == 0:
+        if row is None:
             return
 
 
