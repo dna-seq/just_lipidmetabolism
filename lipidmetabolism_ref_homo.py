@@ -12,7 +12,7 @@ class LipidRefHomo:
 
 
     def setup(self):
-        sql:str = "SELECT rsid, risk_allele, weight FROM weight WHERE state = 'ref' AND zygosity = 'hom'"
+        sql:str = "SELECT rsid, ref_allele, weight FROM weight WHERE state = 'ref' AND zygosity = 'hom'"
         self.parent.lipid_cursor.execute(sql)
         rows:tuple = self.parent.lipid_cursor.fetchall()
         for row in rows:

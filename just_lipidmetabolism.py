@@ -103,6 +103,7 @@ class CravatPostAggregator (BasePostAggregator):
 
     def annotate (self, input_data:dict):
         rsid:str = str(input_data['dbsnp__rsid'])
+        
         if rsid == '':
             return
 
