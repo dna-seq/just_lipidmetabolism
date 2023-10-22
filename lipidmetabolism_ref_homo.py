@@ -58,15 +58,14 @@ class LipidRefHomo:
             if self.rsid_map[rsid]['exist']:
                 allele:str = self.rsid_map[rsid]['allele']
                 genotype:str = allele+allele
-                
                 query_for_studies:str = f"SELECT pubmed_id, populations, p_value FROM studies WHERE snp = '{rsid}'"
                 self.parent.lipid_cursor.execute(query_for_studies)
                 studies = self.parent.lipid_cursor.fetchall()
                 study_design = self.parent.merge_studies(studies)
 
                 query:str = "SELECT rsids.risk_allele, gene, genotype, genotype_specific_conclusion, rsid_conclusion, weight, " \
-                " pmids, population, p_value FROM rsids, " \
-                f" weight WHERE rsids.rsid = '{rsid}' AND weight.rsid = '{rsid}' AND genotype = '{genotype}';"
+                " pmids, population, rsids.p_value FROM rsids, " \
+                f" weight WHERE rsids.rsid = '{rsid}' AND weight.rsid = '{rsid}' AND weight.state = 'ref' AND weight.zygosity='hom'"
 
                 self.parent.lipid_cursor.execute(query)
                 row:tuple = self.parent.lipid_cursor.fetchone()
