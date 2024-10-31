@@ -10,9 +10,9 @@ From Oakvar store:
 ```bash
 ov module install just_lipidmetabolism
 ```
-From a direct link on GitHub:
+Or make git clone of the current repository directly into "postaggregators" folder of Oakvar:
 ```bash
-ov module install https://github.com/dna-seq/just_lipidmetabolism
+git clone https://github.com/dna-seq/just_lipidmetabolism
 ```
 
 ## Manual installation
